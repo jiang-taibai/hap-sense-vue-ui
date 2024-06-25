@@ -1,38 +1,49 @@
-import {createRouter, createWebHistory} from 'vue-router'
+import {createRouter, createWebHashHistory} from 'vue-router'
 
+// 懒加载所有路由组件
+const Overview = () => import('@/views/Overview.vue');
+const HistoryData = () => import('@/views/HistoryData.vue');
+const MultiDimensionalData = () => import('@/views/MultiDimensionalData.vue');
+const ChangeTrendAnalysis = () => import('@/views/ChangeTrendAnalysis.vue');
+const AbnormalTrendAnalysis = () => import('@/views/AbnormalTrendAnalysis.vue');
+const DataManagement = () => import('@/views/DataManagement.vue');
+const TechnicalSupport = () => import('@/views/TechnicalSupport.vue');
+
+// 定义路由数组
 const routes = [{
     path: '/',
     name: 'Overview',
-    component: () => import('@/views/Overview.vue')
+    component: Overview
 }, {
     path: '/history-data',
     name: 'HistoryData',
-    component: () => import('@/views/HistoryData.vue')
+    component: HistoryData
 }, {
     path: '/multi-dimensional-data',
     name: 'MultiDimensionalData',
-    component: () => import('@/views/MultiDimensionalData.vue')
+    component: MultiDimensionalData
 }, {
     path: '/change-trend-analysis',
     name: 'ChangeTrendAnalysis',
-    component: () => import('@/views/ChangeTrendAnalysis.vue')
+    component: ChangeTrendAnalysis
 }, {
     path: '/abnormal-trend-analysis',
     name: 'AbnormalTrendAnalysis',
-    component: () => import('@/views/AbnormalTrendAnalysis.vue')
+    component: AbnormalTrendAnalysis
 }, {
     path: '/data-management',
     name: 'DataManagement',
-    component: () => import('@/views/DataManagement.vue')
+    component: DataManagement
 }, {
     path: '/technical-support',
     name: 'TechnicalSupport',
-    component: () => import('@/views/TechnicalSupport.vue')
-}]
+    component: TechnicalSupport
+}];
 
+// 创建路由器实例
 const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHashHistory(),
     routes
-})
+});
 
-export default router
+export default router;
