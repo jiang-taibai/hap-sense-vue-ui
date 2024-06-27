@@ -1,17 +1,16 @@
 <script setup>
-import {h, ref} from 'vue';
+import {h, onMounted, ref} from 'vue';
 import {
   NInputGroup, NSelect, NInput, NButton,
-  NDataTable, NTag, NModal, NForm,
-  NFormItem, NInputNumber, NDynamicInput,
+  NDataTable, NTag,
 } from 'naive-ui';
-import {format} from "date-fns/esm";
 import PersonnelInformationEditingModal from "@/components/PersonnelInformationEditingModal.vue";
+import {queryResidents} from "@/assets/js/api/java-api.js";
 
 const typeOptions = [
   {label: '姓名', value: 'name'},
-  {label: '身份号', value: 'identity-number'},
-  {label: '家庭号', value: 'family-number'},
+  {label: '身份号', value: 'identity_number'},
+  {label: '家庭号', value: 'family_number'},
 ]
 const queryForm = ref({
   type: 'name',
@@ -19,6 +18,7 @@ const queryForm = ref({
 })
 const showEditingModal = ref(false)
 const editingForm = ref({
+  id: '',
   identityNumber: -1,
   name: '',
   familyNumber: 0,
@@ -35,13 +35,16 @@ const renderInParkTimeTagList = (inParkTime) => {
           style: "margin-right: 5px"
         },
         {
-          default: () => `${format(new Date(start), "yyyy-MM-dd")}~${format(new Date(end), "yyyy-MM-dd")}`
+          default: () => `${start}~${end}`
         }
     );
   });
 };
 
 const renderTags = (tags) => {
+  if (tags.length === 0) {
+    return "-";
+  }
   return tags.map(tag => {
     return h(
         NTag,
@@ -99,70 +102,20 @@ const createColumns = () => {
   ];
 };
 
-const data = [
-  {
-    identityNumber: 3,
-    name: "张三",
-    familyNumber: 5,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-  {
-    identityNumber: 4,
-    name: "李四",
-    familyNumber: 6,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-  {
-    identityNumber: 5,
-    name: "王五",
-    familyNumber: 7,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-  {
-    identityNumber: 6,
-    name: "赵六",
-    familyNumber: 8,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-  {
-    identityNumber: 7,
-    name: "孙七",
-    familyNumber: 9,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: [],
-  },
-  {
-    identityNumber: 8,
-    name: "周八",
-    familyNumber: 10,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: [],
-  },
-  {
-    identityNumber: 9,
-    name: "吴九",
-    familyNumber: 11,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-  {
-    identityNumber: 10,
-    name: "郑十",
-    familyNumber: 12,
-    inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
-    tags: ["种植户"],
-  },
-];
+const data = ref([
+  // {
+  //   identityNumber: 3,
+  //   name: "张三",
+  //   familyNumber: 5,
+  //   inParkTime: [[1601481600000, 1712160000000], [1712419200000, 1718467200000]],
+  //   tags: ["种植户"],
+  // },
+]);
 const columns = createColumns();
-const pagination = false
 
 const onAddNewPersonnel = () => {
   editingForm.value = {
-    identityNumber: -1,
+    identityNumber: '',
     name: '',
     familyNumber: 0,
     inParkTime: [],
@@ -171,7 +124,10 @@ const onAddNewPersonnel = () => {
   showEditingModal.value = true
 }
 const onEditPersonnel = (row) => {
-  editingForm.value = row
+  editingForm.value = JSON.parse(JSON.stringify(row))
+  editingForm.value.inParkTime = editingForm.value.inParkTime.map(([start, end]) => {
+    return [new Date(start).getTime(), new Date(end).getTime()]
+  })
   showEditingModal.value = true
 }
 const onCloseEditingModal = (newValue) => {
@@ -180,6 +136,49 @@ const onCloseEditingModal = (newValue) => {
     console.log(newValue)
   }
 }
+
+const pagination = ref({
+  page: 1,
+  pageCount: 1,
+  pageSize: 50,
+  prefix({itemCount}) {
+    return `Total is ${itemCount}.`
+  }
+})
+const rowKey = (rowData) => {
+  return rowData.column1
+}
+const handlePageChange = (page) => {
+  loadResidents(page)
+}
+const loadResidents = (page) => {
+  queryResidents(
+      queryForm.value.type,
+      queryForm.value.value,
+      page,
+      pagination.value.pageSize, (response) => {
+        const responseData = response.data
+        pagination.value.page = responseData.data.page
+        pagination.value.pageCount = responseData.data.pages
+        const items = responseData.data.list
+        data.value = items.map(item => {
+          return {
+            id: item.id,
+            identityNumber: item.identityNumber,
+            name: item.name,
+            familyNumber: item.familyNumber,
+            inParkTime: JSON.parse(item.inParkTime),
+            tags: item.tags.length === 0 ? [] : item.tags.split(',')
+          }
+        })
+      })
+}
+const onSearch = () => {
+  handlePageChange(1)
+}
+onMounted(() => {
+  handlePageChange(1)
+})
 </script>
 
 <template>
@@ -188,17 +187,20 @@ const onCloseEditingModal = (newValue) => {
       <n-input-group>
         <n-select style="width: 10em" :options="typeOptions" v-model:value="queryForm.type"/>
         <n-input v-model:value="queryForm.value"/>
-        <n-button type="primary">搜索</n-button>
+        <n-button type="primary" @click="onSearch">搜索</n-button>
       </n-input-group>
       <n-button type="info" @click="onAddNewPersonnel">新增</n-button>
     </div>
 
     <div class="data-container">
       <n-data-table
+          remote
           :columns="columns"
           :data="data"
+          :row-key="rowKey"
           :pagination="pagination"
           :bordered="false"
+          @update:page="handlePageChange"
       />
     </div>
 

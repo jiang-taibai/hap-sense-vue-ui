@@ -6,6 +6,8 @@ import {
 } from "naive-ui";
 
 import {defineProps, defineEmits, watch, ref} from "vue";
+import {format} from "date-fns/esm";
+import {addResident, updateResident} from "@/assets/js/api/java-api.js";
 
 const props = defineProps({
   showEditingModal: {
@@ -18,10 +20,11 @@ const props = defineProps({
   },
 })
 const emit = defineEmits(['close-modal']);
-const localEditingForm = ref(props.editingForm);
-watch(() => props.editingForm, (newValue) => {
-  localEditingForm.value = newValue;
-});
+const localEditingForm = ref(JSON.parse(JSON.stringify(props.editingForm)));
+
+watch(() => props.editingForm, (newVal) => {
+  localEditingForm.value = JSON.parse(JSON.stringify(newVal))
+})
 
 const tagOptions = [{
   label: '种植户',
@@ -33,7 +36,28 @@ const onCreateInParkTime = () => {
 }
 
 const onConfirmEditing = () => {
-  emit('close-modal', localEditingForm.value)
+  const form = JSON.parse(JSON.stringify(localEditingForm.value))
+  form.inParkTime = form.inParkTime.map(([start, end]) => {
+    return [format(new Date(start), 'yyyy-MM-dd'), format(new Date(end), 'yyyy-MM-dd')]
+  })
+  if (form.id) {
+    // 如果 ID 不为空，就说明是编辑，否则是新增
+    updateResident(
+        form.id, form.name, form.identityNumber,
+        form.familyNumber, JSON.stringify(form.inParkTime), form.tags.join(','),
+        response => {
+          console.log(response)
+        })
+  } else {
+    addResident(
+        form.name, form.identityNumber,
+        form.familyNumber, JSON.stringify(form.inParkTime), form.tags.join(','),
+        response => {
+          console.log(response)
+        }
+    )
+  }
+  emit('close-modal', form)
 }
 const onCancelEditing = () => {
   emit('close-modal')
@@ -46,12 +70,15 @@ const onCancelEditing = () => {
            title="编辑人员信息"
            positive-text="确认"
            negative-text="取消"
-           style="width: 40%"
+           style="width: 70%"
            @close="onCancelEditing"
            @positive-click="onConfirmEditing"
            @negative-click="onCancelEditing">
     <n-form :model="localEditingForm"
             label-placement="left" label-width="auto" require-mark-placement="right-hanging">
+      <n-form-item label="身份号">
+        <n-input v-model:value="localEditingForm.identityNumber" placeholder="请输入身份号"/>
+      </n-form-item>
       <n-form-item label="姓名">
         <n-input v-model:value="localEditingForm.name" placeholder="请输入姓名"/>
       </n-form-item>
@@ -75,7 +102,8 @@ const onCancelEditing = () => {
         </n-dynamic-input>
       </n-form-item>
       <n-form-item label="标签">
-        <n-select v-model:value="props.editingForm.tags" :options="tagOptions" placeholder="请选择标签" clearable/>
+        <n-select v-model:value="localEditingForm.tags" :options="tagOptions" multiple placeholder="请选择标签"
+                  clearable/>
       </n-form-item>
     </n-form>
   </n-modal>

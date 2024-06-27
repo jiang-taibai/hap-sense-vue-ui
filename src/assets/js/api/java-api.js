@@ -1,39 +1,69 @@
-import http from "./http.js";
+import axios from 'axios';
 
-const getPosts = (callback) => {
-  http.get('/posts')
-      .then(response => callback(null, response))
-      .catch(error => callback(error));
-};
+const baseURL = 'http://localhost:8080';
 
-const getPostById = (id, callback) => {
-  http.get(`/posts/${id}`)
-      .then(response => callback(null, response))
-      .catch(error => callback(error));
-};
+let http = axios.create({
+    baseURL: baseURL,
+    withCredentials: false,
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+    },
+    transformRequest: [function (data) {
+        let newData = '';
+        for (let k in data) {
+            if (data.hasOwnProperty(k) === true) {
+                newData += encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) + '&';
+            }
+        }
+        return newData;
+    }]
+});
 
-const createPost = (data, callback) => {
-  http.post('/posts', data)
-      .then(response => callback(null, response))
-      .catch(error => callback(error));
-};
+function apiAxios(method, url, params, response) {
+    http({
+        method: method,
+        url: url,
+        data: method === 'POST' || method === 'PUT' ? params : null,
+        params: method === 'GET' || method === 'DELETE' ? params : null,
+    }).then(function (res) {
+        response(res);
+    }).catch(function (err) {
+        response(err);
+    })
+}
 
-const updatePost = (id, data, callback) => {
-  http.put(`/posts/${id}`, data)
-      .then(response => callback(null, response))
-      .catch(error => callback(error));
-};
+const api = {
+    get: function (url, params, response) {
+        return apiAxios('GET', url, params, response)
+    },
+    post: function (url, params, response) {
+        return apiAxios('POST', url, params, response)
+    },
+    put: function (url, params, response) {
+        return apiAxios('PUT', url, params, response)
+    },
+    delete: function (url, params, response) {
+        return apiAxios('DELETE', url, params, response)
+    }
+}
 
-const deletePost = (id, callback) => {
-  http.delete(`/posts/${id}`)
-      .then(response => callback(null, response))
-      .catch(error => callback(error));
-};
 
-export default {
-  getPosts,
-  getPostById,
-  createPost,
-  updatePost,
-  deletePost,
-};
+export const queryResidents = (queryType, queryContent, page, pageSize, callback) => {
+    api.get('/resident/query', {queryType, queryContent, page, pageSize,}, callback)
+}
+
+export const addResident = (name, identityNumber, familyNumber, inParkTime, tags, callback) => {
+    api.post('/resident/add', {name, identityNumber, familyNumber, inParkTime, tags,}, callback)
+}
+
+export const updateResident = (id, name, identityNumber, familyNumber, inParkTime, tags, callback) => {
+    api.post('/resident/update', {id, name, identityNumber, familyNumber, inParkTime, tags}, callback)
+}
+
+export const deleteResident = (id, callback) => {
+    api.post('/resident/delete', {id}, callback)
+}
+
+export const getAllStatistics = (callback) => {
+    api.get('/statistics/all', callback)
+}

@@ -1,18 +1,25 @@
 <script setup>
 import * as echarts from 'echarts';
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {
   NDatePicker,
   NButton,
 } from "naive-ui";
+import {useStatisticsStore} from "@/stores/statistics-state.js";
+
+const statisticsStore = useStatisticsStore()
 
 const dateRange = ref([1577808000000, Date.now()]);
 const historyDataChartElement = ref(null)
 onMounted(() => {
-  initLineChart();
+  initLineChart(statisticsStore.statistics);
 });
 
-const initLineChart = () => {
+const initLineChart = (statistics) => {
+  // statistics={'2024-06-26': {date: '2024-06-26', 'totalPopulation': 100, 'totalHousehold': 10, 'totalPlantingHousehold': 5}, ...}
+  const xAxisData = Object.keys(statistics).sort();
+  const seriesData = Object.values(statistics).sort((a, b) => a.date - b.date);
+
   const myChart = echarts.init(historyDataChartElement.value);
   const option = {
     title: {
@@ -50,7 +57,7 @@ const initLineChart = () => {
     ],
     xAxis: {
       type: 'category',
-      data: ['2018', '2019', '2020', '2021', '2022', '2023', '2024']
+      data: xAxisData,
     },
     yAxis: {gridIndex: 0},
     series: [
@@ -59,35 +66,39 @@ const initLineChart = () => {
         type: 'line',
         smooth: true,
         seriesLayoutBy: 'row',
-        data: [3600, 1932, 2901, 3934, 6290, 7330, 8320]
+        data: seriesData.map(item => item.totalPopulation)
       },
       {
         name: '人口总户数',
         type: 'line',
         smooth: true,
         seriesLayoutBy: 'row',
-        data: [820, 932, 901, 934, 1290, 1330, 1320]
+        data: seriesData.map(item => item.totalHousehold)
       },
       {
         name: '种植户总户数',
         type: 'line',
         smooth: true,
         seriesLayoutBy: 'row',
-        data: [300, 332, 301, 434, 590, 530, 620]
+        data: seriesData.map(item => item.totalPlantingHousehold)
       }
     ]
   };
   myChart.setOption(option);
 }
+
+watch(() => statisticsStore.statistics, (statistics) => {
+  initLineChart(statistics);
+})
 </script>
 
 <template>
   <div class="container">
-    <div class="date-picker-container">
-      <span>日期选择：</span>
-      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>
-      <n-button>确认</n-button>
-    </div>
+<!--    <div class="date-picker-container">-->
+<!--      <span>日期选择：</span>-->
+<!--      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>-->
+<!--      <n-button>确认</n-button>-->
+<!--    </div>-->
     <div class="card">
       <div ref="historyDataChartElement" style="width: 100%; height: 600px;"></div>
     </div>
@@ -108,10 +119,9 @@ const initLineChart = () => {
 }
 
 .card {
-  padding: 20px 40px;
+  padding: 20px;
   margin-bottom: 20px;
   border-radius: 4px;
-  max-width: 800px;
   border: 1px solid rgb(239, 239, 245);
 }
 </style>

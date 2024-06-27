@@ -1,23 +1,27 @@
 <script setup>
 import * as echarts from 'echarts';
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {
   NDatePicker,
   NButton,
 } from "naive-ui";
+import {useStatisticsStore} from "@/stores/statistics-state.js";
 
 const dateRange = ref([1577808000000, Date.now()]);
 const BarChartOfTheProportionOfHouseholdsElement = ref(null)
+const statisticsStore = useStatisticsStore()
 onMounted(() => {
-  initBarChartOfTheProportionOfHouseholds();
+  initBarChartOfTheProportionOfHouseholds(statisticsStore.statistics);
 });
 
-const initBarChartOfTheProportionOfHouseholds = () => {
+const initBarChartOfTheProportionOfHouseholds = (statistics) => {
+  const xAxisData = Object.keys(statistics).sort();
+  const seriesData = Object.values(statistics).sort((a, b) => a.date - b.date);
   const myChart = echarts.init(BarChartOfTheProportionOfHouseholdsElement.value);
   let option;
   const rawData = [
-    [100, 302, 301, 334, 390, 330, 320],
-    [820, 832, 901, 934, 1290, 1330, 1320]
+    seriesData.map(item => item.totalPlantingHousehold),
+    seriesData.map(item => item.totalHousehold - item.totalPlantingHousehold),
   ];
   const totalData = [];
   for (let i = 0; i < rawData[0].length; ++i) {
@@ -38,10 +42,7 @@ const initBarChartOfTheProportionOfHouseholds = () => {
   const categoryWidth = gridWidth / rawData[0].length;
   const barWidth = categoryWidth * 0.6;
   const barPadding = (categoryWidth - barWidth) / 2;
-  const series = [
-    '种植户户数',
-    '人口总户数',
-  ].map((name, sid) => {
+  const series = ['种植户户数', '其他户户数',].map((name, sid) => {
     return {
       name,
       type: 'bar',
@@ -51,8 +52,7 @@ const initBarChartOfTheProportionOfHouseholds = () => {
         show: true,
         formatter: (params) => Math.round(params.value * 1000) / 10 + '%'
       },
-      data: rawData[sid].map((d, did) =>
-          totalData[did] <= 0 ? 0 : d / totalData[did]
+      data: rawData[sid].map((d, did) => totalData[did] <= 0 ? 0 : d / totalData[did]
       )
     };
   });
@@ -120,7 +120,7 @@ const initBarChartOfTheProportionOfHouseholds = () => {
     },
     xAxis: {
       type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      data: xAxisData
     },
     series,
     graphic: {
@@ -129,15 +129,18 @@ const initBarChartOfTheProportionOfHouseholds = () => {
   };
   myChart.setOption(option)
 }
+watch(() => statisticsStore.statistics, (statistics) => {
+  initBarChartOfTheProportionOfHouseholds(statistics);
+})
 </script>
 
 <template>
   <div class="container">
-    <div class="date-picker-container">
-      <span>日期选择：</span>
-      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>
-      <n-button>确认</n-button>
-    </div>
+<!--    <div class="date-picker-container">-->
+<!--      <span>日期选择：</span>-->
+<!--      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>-->
+<!--      <n-button>确认</n-button>-->
+<!--    </div>-->
     <div class="card">
       <div ref="BarChartOfTheProportionOfHouseholdsElement" style="width: 100%; height: 600px;"></div>
     </div>
@@ -158,10 +161,9 @@ const initBarChartOfTheProportionOfHouseholds = () => {
 }
 
 .card {
-  padding: 20px 40px;
+  padding: 20px;
   margin-bottom: 20px;
   border-radius: 4px;
-  max-width: 800px;
   border: 1px solid rgb(239, 239, 245);
 }
 </style>
