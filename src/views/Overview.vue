@@ -3,6 +3,8 @@ import WeatherWidget from "@/components/WeatherWidget.vue";
 import ClockCard from "@/components/ClockCard.vue";
 import StatisticsCalendar from "@/components/StatisticsCalendar.vue";
 import TodayParkDataCard from "@/components/TodayParkDataCard.vue";
+import NewsCard from "@/components/NewsCard.vue";
+import AdCard from "@/components/AdCard.vue";
 
 
 </script>
@@ -13,14 +15,18 @@ import TodayParkDataCard from "@/components/TodayParkDataCard.vue";
       <h1>XX国家公园人口数据概览</h1>
     </div>
     <div class="card-container">
-      <div class="date-container">
-        <clock-card/>
+      <div class="ads-container">
+        <ad-card style="flex: 1"/>
       </div>
       <div class="weather-container">
         <weather-widget/>
       </div>
       <div class="data-container">
+        <clock-card/>
         <today-park-data-card/>
+      </div>
+      <div class="news-container">
+        <news-card/>
       </div>
     </div>
     <statistics-calendar/>
@@ -33,16 +39,28 @@ import TodayParkDataCard from "@/components/TodayParkDataCard.vue";
 
   .card-container {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 20px;
-    height: 240px;
+    min-height: 240px;
 
-    .date-container {
-      width: 200px;
+    .ads-container {
+      width: 350px;
     }
 
     .weather-container {
       width: 440px;
+    }
+
+    .data-container {
+      width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .news-container {
+      flex: 1;
     }
 
   }

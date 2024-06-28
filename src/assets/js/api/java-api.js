@@ -1,69 +1,40 @@
 import axios from 'axios';
+import {ApiBuilder} from "@/assets/js/api/basic.js";
 
-const baseURL = 'http://localhost:8080';
+const devBaseURL = 'http://localhost:8000'
+const prodBaseURL = 'https://project-api.coderjiang.com/hap-sense/java-api'
+const baseURL = process.env.NODE_ENV === 'production' ? prodBaseURL : devBaseURL
+// const baseURL = prodBaseURL
 
-let http = axios.create({
-    baseURL: baseURL,
-    withCredentials: false,
-    headers: {
-        'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-    },
-    transformRequest: [function (data) {
-        let newData = '';
-        for (let k in data) {
-            if (data.hasOwnProperty(k) === true) {
-                newData += encodeURIComponent(k) + '=' + encodeURIComponent(data[k]) + '&';
-            }
-        }
-        return newData;
-    }]
-});
+const api = new ApiBuilder(baseURL)
 
-function apiAxios(method, url, params, response) {
-    http({
-        method: method,
-        url: url,
-        data: method === 'POST' || method === 'PUT' ? params : null,
-        params: method === 'GET' || method === 'DELETE' ? params : null,
-    }).then(function (res) {
-        response(res);
-    }).catch(function (err) {
-        response(err);
-    })
+const response_on_error = (err) => {
+    alert('请求失败，请检查网络连接或联系管理员。错误原因：', err);
 }
-
-const api = {
-    get: function (url, params, response) {
-        return apiAxios('GET', url, params, response)
-    },
-    post: function (url, params, response) {
-        return apiAxios('POST', url, params, response)
-    },
-    put: function (url, params, response) {
-        return apiAxios('PUT', url, params, response)
-    },
-    delete: function (url, params, response) {
-        return apiAxios('DELETE', url, params, response)
-    }
-}
-
 
 export const queryResidents = (queryType, queryContent, page, pageSize, callback) => {
-    api.get('/resident/query', {queryType, queryContent, page, pageSize,}, callback)
+    api.get('/resident/query', {queryType, queryContent, page, pageSize}, callback, response_on_error)
 }
 
 export const addResident = (name, identityNumber, familyNumber, inParkTime, tags, callback) => {
-    api.post('/resident/add', {name, identityNumber, familyNumber, inParkTime, tags,}, callback)
+    api.post('/resident/add', {name, identityNumber, familyNumber, inParkTime, tags}, callback, response_on_error)
 }
 
 export const updateResident = (id, name, identityNumber, familyNumber, inParkTime, tags, callback) => {
-    api.post('/resident/update', {id, name, identityNumber, familyNumber, inParkTime, tags}, callback)
+    api.post('/resident/update', {
+        id,
+        name,
+        identityNumber,
+        familyNumber,
+        inParkTime,
+        tags
+    }, callback, response_on_error)
 }
 
 export const deleteResident = (id, callback) => {
-    api.post('/resident/delete', {id}, callback)
+    api.post('/resident/delete', {id}, callback, response_on_error)
 }
 
 export const getAllStatistics = (callback) => {
-    api.get('/statistics/all', callback)
+    api.get('/statistics/all', {}, callback, response_on_error)
 }

@@ -1,26 +1,32 @@
 <script setup>
 import * as echarts from 'echarts';
 import {onMounted, ref, watch} from "vue";
-import {
-  NDatePicker,
-  NButton,
-} from "naive-ui";
 import {useStatisticsStore} from "@/stores/statistics-state.js";
 
 const statisticsStore = useStatisticsStore()
 
-const dateRange = ref([1577808000000, Date.now()]);
+let chart = null;
 const historyDataChartElement = ref(null)
 onMounted(() => {
   initLineChart(statisticsStore.statistics);
+
+  watch(() => statisticsStore.statistics, (statistics) => {
+    initLineChart(statistics);
+  })
+  watch(() => statisticsStore.loaded, (loaded) => {
+    if (loaded) {
+      chart.hideLoading()
+    } else {
+      chart.showLoading()
+    }
+  })
 });
 
 const initLineChart = (statistics) => {
   // statistics={'2024-06-26': {date: '2024-06-26', 'totalPopulation': 100, 'totalHousehold': 10, 'totalPlantingHousehold': 5}, ...}
   const xAxisData = Object.keys(statistics).sort();
   const seriesData = Object.values(statistics).sort((a, b) => a.date - b.date);
-
-  const myChart = echarts.init(historyDataChartElement.value);
+  const myChart = echarts.init(historyDataChartElement.value, null, {renderer: 'svg', locale: 'ZH'});
   const option = {
     title: {
       text: 'XX国家公园人口数据折线图',
@@ -31,6 +37,17 @@ const initLineChart = (statistics) => {
       trigger: 'axis',
       axisPointer: {
         animation: true
+      },
+    },
+    toolbox: {
+      show: true,
+      feature: {
+        dataZoom: {
+          yAxisIndex: 'none'
+        },
+        dataView: {readOnly: true},
+        restore: {},
+        saveAsImage: {}
       }
     },
     grid: {},
@@ -85,20 +102,19 @@ const initLineChart = (statistics) => {
     ]
   };
   myChart.setOption(option);
+  if (statisticsStore.loaded) {
+    myChart.hideLoading()
+  } else {
+    myChart.showLoading()
+  }
+  chart = myChart;
+  return myChart;
 }
 
-watch(() => statisticsStore.statistics, (statistics) => {
-  initLineChart(statistics);
-})
 </script>
 
 <template>
   <div class="container">
-<!--    <div class="date-picker-container">-->
-<!--      <span>日期选择：</span>-->
-<!--      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>-->
-<!--      <n-button>确认</n-button>-->
-<!--    </div>-->
     <div class="card">
       <div ref="historyDataChartElement" style="width: 100%; height: 600px;"></div>
     </div>

@@ -1,7 +1,5 @@
 <script setup>
-import MarkdownIt from 'markdown-it';
-
-const markdownIt = new MarkdownIt()
+import Markdown from 'vue3-markdown-it';
 
 const markdownText = `
 # 1. 项目背景
@@ -28,14 +26,14 @@ const markdownText = `
 
 本项目使用了以下技术：
 
-| 前端       | 说明    | 后端         | 说明    | 人工智能    | 说明     |
-|----------|-------|------------|-------|---------|--------|
-| Vue3     | 前端框架  | SpringBoot | 后端框架  | PyTorch | 深度学习框架 |
-| Vite2    | 构建工具  | TK-MyBatis | ORM框架 | Tornada | 异步网络框架 |
-| Naive UI | UI组件库 | MySQL      | 数据库   |         |        |
-| ECharts  | 数据可视化 |            |       |         |        |
-| Axios    | 网络请求  |            |       |         |        |
-| Pinia    | 状态管理  |            |       |         |        |
+| 前端         | 说明    | 后端           | 说明    | 人工智能      | 说明     |
+|------------|-------|--------------|-------|-----------|--------|
+| \`Vue3\`     | 前端框架  | \`SpringBoot\` | 后端框架  | \`PyTorch\` | 深度学习框架 |
+| \`Vite2\`    | 构建工具  | \`TK-MyBatis\` | ORM框架 | \`Tornada\` | 异步网络框架 |
+| \`Naive UI\` | UI组件库 | \`MySQL\`      | 数据库   |           |        |
+| \`ECharts\`  | 数据可视化 |              |       |           |        |
+| \`Axios\`    | 网络请求  |              |       |           |        |
+| \`Pinia\`    | 状态管理  |              |       |           |        |
 
 ## 4.2 核心技术
 
@@ -51,13 +49,42 @@ const markdownText = `
 </script>
 
 <template>
-  <div class="container">
-    <div v-html="markdownIt.render(markdownText)"></div>
+  <div class="markdown-container">
+    <markdown :source="markdownText"/>
   </div>
 </template>
 
-<style scoped>
-.container {
+<style>
+.markdown-container {
   padding: 20px;
+  /* 基本的表格样式设置 */
+
+  table {
+    border-collapse: collapse; /* 折叠边框模型 */
+    font-family: Arial, sans-serif; /* 字体样式 */
+    border: #dddddd solid 1px;
+  }
+
+  /* 表头样式 */
+
+  thead th {
+    background-color: #4CAF50; /* 背景颜色 */
+    color: white; /* 文本颜色 */
+    padding: 10px 20px; /* 填充 */
+    text-align: left; /* 文本左对齐 */
+  }
+
+  /* 单元格样式 */
+
+  td {
+    padding: 8px 20px; /* 单元格内填充 */
+    border-bottom: 1px solid #ddd; /* 底部边框 */
+  }
+
+  /* 行悬停效果 */
+
+  tr:hover {
+    background-color: #f5f5f5; /* 悬停时的背景颜色 */
+  }
 }
 </style>

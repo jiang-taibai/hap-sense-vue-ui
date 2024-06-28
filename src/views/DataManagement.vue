@@ -6,6 +6,7 @@ import {
 } from 'naive-ui';
 import PersonnelInformationEditingModal from "@/components/PersonnelInformationEditingModal.vue";
 import {queryResidents} from "@/assets/js/api/java-api.js";
+import {ConvertResidentInformation} from "@/assets/js/utils.js";
 
 const typeOptions = [
   {label: '姓名', value: 'name'},
@@ -124,10 +125,7 @@ const onAddNewPersonnel = () => {
   showEditingModal.value = true
 }
 const onEditPersonnel = (row) => {
-  editingForm.value = JSON.parse(JSON.stringify(row))
-  editingForm.value.inParkTime = editingForm.value.inParkTime.map(([start, end]) => {
-    return [new Date(start).getTime(), new Date(end).getTime()]
-  })
+  editingForm.value = ConvertResidentInformation.TableToEditForm(JSON.parse(JSON.stringify(row)))
   showEditingModal.value = true
 }
 const onCloseEditingModal = (newValue) => {
@@ -158,19 +156,10 @@ const loadResidents = (page) => {
       page,
       pagination.value.pageSize, (response) => {
         const responseData = response.data
-        pagination.value.page = responseData.data.page
+        pagination.value.page = responseData.data.pageNum
         pagination.value.pageCount = responseData.data.pages
         const items = responseData.data.list
-        data.value = items.map(item => {
-          return {
-            id: item.id,
-            identityNumber: item.identityNumber,
-            name: item.name,
-            familyNumber: item.familyNumber,
-            inParkTime: JSON.parse(item.inParkTime),
-            tags: item.tags.length === 0 ? [] : item.tags.split(',')
-          }
-        })
+        data.value = items.map(item => ConvertResidentInformation.APIToTable(item))
       })
 }
 const onSearch = () => {
@@ -179,6 +168,9 @@ const onSearch = () => {
 onMounted(() => {
   handlePageChange(1)
 })
+const onUpdateResident = (resident) => {
+  handlePageChange(pagination.value.page)
+}
 </script>
 
 <template>
@@ -186,7 +178,7 @@ onMounted(() => {
     <div class="input-container">
       <n-input-group>
         <n-select style="width: 10em" :options="typeOptions" v-model:value="queryForm.type"/>
-        <n-input v-model:value="queryForm.value"/>
+        <n-input v-model:value="queryForm.value" clearable placeholder="请输入关键词"/>
         <n-button type="primary" @click="onSearch">搜索</n-button>
       </n-input-group>
       <n-button type="info" @click="onAddNewPersonnel">新增</n-button>
@@ -208,6 +200,7 @@ onMounted(() => {
         :show-editing-modal="showEditingModal"
         :editing-form="editingForm"
         @close-modal="onCloseEditingModal"
+        @update-resident="onUpdateResident"
     />
   </div>
 </template>

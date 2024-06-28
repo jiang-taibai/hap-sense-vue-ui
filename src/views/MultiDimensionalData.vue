@@ -1,23 +1,29 @@
 <script setup>
 import * as echarts from 'echarts';
 import {onMounted, ref, watch} from "vue";
-import {
-  NDatePicker,
-  NButton,
-} from "naive-ui";
 import {useStatisticsStore} from "@/stores/statistics-state.js";
 
-const dateRange = ref([1577808000000, Date.now()]);
 const BarChartOfTheProportionOfHouseholdsElement = ref(null)
 const statisticsStore = useStatisticsStore()
+
+let chart = null
+
 onMounted(() => {
   initBarChartOfTheProportionOfHouseholds(statisticsStore.statistics);
+
+  watch(() => statisticsStore.loaded, (loaded) => {
+    if (loaded) {
+      chart.hideLoading()
+    } else {
+      chart.showLoading()
+    }
+  })
 });
 
 const initBarChartOfTheProportionOfHouseholds = (statistics) => {
   const xAxisData = Object.keys(statistics).sort();
   const seriesData = Object.values(statistics).sort((a, b) => a.date - b.date);
-  const myChart = echarts.init(BarChartOfTheProportionOfHouseholdsElement.value);
+  const myChart = echarts.init(BarChartOfTheProportionOfHouseholdsElement.value, null, {renderer: 'svg', locale: 'ZH'});
   let option;
   const rawData = [
     seriesData.map(item => item.totalPlantingHousehold),
@@ -127,6 +133,11 @@ const initBarChartOfTheProportionOfHouseholds = (statistics) => {
       elements
     }
   };
+  if (statisticsStore.loaded) {
+    myChart.hideLoading()
+  } else {
+    myChart.showLoading()
+  }
   myChart.setOption(option)
 }
 watch(() => statisticsStore.statistics, (statistics) => {
@@ -136,11 +147,11 @@ watch(() => statisticsStore.statistics, (statistics) => {
 
 <template>
   <div class="container">
-<!--    <div class="date-picker-container">-->
-<!--      <span>日期选择：</span>-->
-<!--      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>-->
-<!--      <n-button>确认</n-button>-->
-<!--    </div>-->
+    <!--    <div class="date-picker-container">-->
+    <!--      <span>日期选择：</span>-->
+    <!--      <n-date-picker v-model:value="dateRange" type="daterange" clearable/>-->
+    <!--      <n-button>确认</n-button>-->
+    <!--    </div>-->
     <div class="card">
       <div ref="BarChartOfTheProportionOfHouseholdsElement" style="width: 100%; height: 600px;"></div>
     </div>

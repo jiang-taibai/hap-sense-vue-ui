@@ -20,7 +20,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div style="height: 100%">
     <div v-show="loadingWeather">
       <n-skeleton text :repeat="9"/>
       <n-skeleton text style="width: 60%"/>

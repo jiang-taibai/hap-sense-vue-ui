@@ -4,7 +4,7 @@ import {ref} from "vue";
 import {format} from "date-fns/esm";
 import {NCard} from "naive-ui";
 
-const time = ref('')
+const time = ref(format(Date.now(), "HH:mm:ss"))
 setInterval(() => {
   time.value = format(Date.now(), "HH:mm:ss")
 }, 1000)

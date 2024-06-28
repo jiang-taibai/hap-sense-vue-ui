@@ -1,68 +1,74 @@
 <script setup>
 import {
-  NLayout,
-  NLayoutSider,
-  NMenu,
-  NScrollbar
+  NLayout, NLayoutSider, NMenu,
+  NScrollbar, NDialogProvider,
+  NNotificationProvider, NIcon,
 } from "naive-ui";
-import {h, ref} from "vue";
-import {defineProps} from 'vue';
+import {h, onMounted, ref} from "vue";
 import {RouterLink} from "vue-router";
+import {currentRouterName} from "@/assets/js/utils.js"
+import Icon from "@/components/Icon.vue";
 
-const props = defineProps({});
-
+const menuInstRef = ref(null)
 const collapsed = ref(false)
-const activeKey = ref('overview')
+const activeKey = ref('Overview')
+
+const renderIcon = (iconName) => {
+  const size = 20
+  return () => h(NIcon, {size: `${size}`}, {
+    default: () => h(Icon, {name: iconName, size: `${size}`})
+  })
+}
 const menuOptions = [{
   label: "概览",
-  key: "overview",
+  key: "Overview",
   name: "Overview",
-  icon: null,
+  icon: renderIcon("home"),
 }, {
   label: "数据监控",
-  key: "data-monitor",
-  icon: null,
+  key: "DataMonitor",
+  icon: renderIcon("data-monitor"),
   children: [{
     label: "历史数据",
-    key: "history-data",
+    key: "HistoryData",
     name: "HistoryData",
-    icon: null,
+    icon: renderIcon("history-data"),
   }, {
     label: "多维数据",
-    key: "multi-dimensional-data",
+    key: "MultiDimensionalData",
     name: "MultiDimensionalData",
-    icon: null,
+    icon: renderIcon("multi-dimensional-data"),
   }]
 }, {
   label: "态势感知",
-  key: "situation-awareness",
-  icon: null,
+  key: "SituationAwareness",
+  icon: renderIcon("situation-awareness"),
   children: [{
     label: "变化趋势分析",
-    key: "change-trend-analysis",
+    key: "ChangeTrendAnalysis",
     name: "ChangeTrendAnalysis",
-    icon: null,
+    icon: renderIcon("change-trend-analysis"),
   }, {
     label: "异常趋势分析",
-    key: "abnormal-trend-analysis",
+    key: "AbnormalTrendAnalysis",
     name: "AbnormalTrendAnalysis",
-    icon: null,
+    icon: renderIcon("abnormal-trend-analysis"),
   }]
 }, {
   label: "数据面板",
-  key: "data-panel",
-  icon: null,
+  key: "DataPanel",
+  icon: renderIcon("data-panel"),
   children: [{
     label: "数据管理",
-    key: "data-management",
+    key: "DataManagement",
     name: "DataManagement",
-    icon: null,
+    icon: renderIcon("data-management"),
   }]
 }, {
   label: "技术支持",
-  key: "technical-support",
+  key: "TechnicalSupport",
   name: "TechnicalSupport",
-  icon: null,
+  icon: renderIcon("technical-support"),
 }]
 const renderMenuLabel = (option) => {
   if ("name" in option) {
@@ -70,12 +76,17 @@ const renderMenuLabel = (option) => {
         {
           to: {
             name: option.name,
-          }
+          },
+          prefetch: true,
         },
         {default: () => option.label})
   }
   return option.label
 }
+onMounted(() => {
+  activeKey.value = currentRouterName();
+  menuInstRef.value?.showOption(activeKey.value);
+})
 </script>
 
 <template>
@@ -90,7 +101,8 @@ const renderMenuLabel = (option) => {
         @collapse="collapsed = true"
         @expand="collapsed = false"
     >
-      <n-menu v-model:value="activeKey"
+      <n-menu ref="menuInstRef"
+              v-model:value="activeKey"
               :collapsed="collapsed"
               :collapsed-width="64"
               :collapsed-icon-size="22"
@@ -98,9 +110,13 @@ const renderMenuLabel = (option) => {
               :options="menuOptions"/>
     </n-layout-sider>
     <n-layout>
-      <n-scrollbar style="height: 100vh">
-        <router-view/>
-      </n-scrollbar>
+      <n-notification-provider>
+        <n-dialog-provider>
+          <n-scrollbar style="height: 100vh;">
+            <router-view/>
+          </n-scrollbar>
+        </n-dialog-provider>
+      </n-notification-provider>
     </n-layout>
   </n-layout>
 </template>

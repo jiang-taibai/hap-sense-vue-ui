@@ -10,7 +10,7 @@ const DataManagement = () => import('@/views/DataManagement.vue');
 const TechnicalSupport = () => import('@/views/TechnicalSupport.vue');
 
 // 定义路由数组
-const routes = [{
+export const routes = [{
     path: '/',
     name: 'Overview',
     component: Overview

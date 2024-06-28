@@ -1,5 +1,5 @@
 <script setup>
-import {NCard, NNumberAnimation, NStatistic} from "naive-ui";
+import {NCard, NNumberAnimation, NStatistic, NSkeleton} from "naive-ui";
 import {onMounted, ref, watch, watchEffect} from "vue";
 import {useStatisticsStore} from "@/stores/statistics-state.js";
 import {format} from "date-fns/esm";
@@ -23,17 +23,26 @@ watchEffect(() => {
 </script>
 
 <template>
-  <n-card>
+  <n-card style="height: 100%">
     <n-statistic label="人口总人数" tabular-nums>
-      <n-number-animation show-separator :from="0" :to="totalPopulation"/>
+      <span>
+        <span v-if="!statisticsStore.loaded">--,---</span>
+        <n-number-animation v-else show-separator :from="0" :to="totalPopulation"/>
+      </span>
       <template #suffix>人</template>
     </n-statistic>
     <n-statistic label="人口总户数" tabular-nums>
-      <n-number-animation show-separator :from="0" :to="totalHousehold"/>
+      <span>
+        <span v-if="!statisticsStore.loaded">--,---</span>
+        <n-number-animation v-else show-separator :from="0" :to="totalHousehold"/>
+      </span>
       <template #suffix>户</template>
     </n-statistic>
     <n-statistic label="种植户总数" tabular-nums>
-      <n-number-animation show-separator :from="0" :to="totalPlantingHousehold"/>
+      <span>
+        <span v-if="!statisticsStore.loaded">--,---</span>
+        <n-number-animation v-else show-separator :from="0" :to="totalPlantingHousehold"/>
+      </span>
       <template #suffix>户</template>
     </n-statistic>
   </n-card>

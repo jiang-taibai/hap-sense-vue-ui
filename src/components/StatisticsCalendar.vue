@@ -2,7 +2,10 @@
 import {computed, onMounted, ref, watch} from "vue";
 import {format} from "date-fns/esm";
 import {useStatisticsStore} from "@/stores/statistics-state.js";
-import {NCalendar} from "naive-ui";
+import {
+  NCalendar,
+  NSkeleton,
+} from "naive-ui";
 
 const calendarDate = ref(Date.now().valueOf())
 const statisticsStore = useStatisticsStore()
@@ -29,9 +32,11 @@ const getCalendarDate = computed(() => {
 
 <template>
   <n-calendar v-model:value="calendarDate" #="{ year, month, date }">
-      <span class="calendar-content">
-        {{ getCalendarDate(year, month, date) }}
-      </span>
+    <div v-if="!statisticsStore.loaded">
+      <n-skeleton text :repeat="2"/>
+      <n-skeleton text style="width: 60%"/>
+    </div>
+    <span class="calendar-content" v-else>{{ getCalendarDate(year, month, date) }}</span>
   </n-calendar>
 </template>
 
