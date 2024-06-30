@@ -12,31 +12,32 @@
 本子项目的目标是实现国家公园的态势感知，实现基于公园的人口总户数、总人数及种植户的户数及人数变化情况，建立公园的人类活动态势感知模型，实现对公园的人类活动态势的实时监测、分析、预警。
 同时实现一套功能完善的数据管理面板，实现对公园的人口数据、种植户数据、人类活动数据的管理、分析、展示等功能。
 
-# 3. 团队介绍
+# 3. 技术架构
 
-本项目团队由武汉理工大学三亚科教园的研究生组成，团队成员有刘江、李成龙，团队导师为龚腾飞老师。开发时长为两周，项目开发周期为2024年6月24日至2024年7月4日。
-
-# 4. 技术架构
-
-## 4.1 基础架构
+## 3.1 基础架构
 
 本项目使用了以下技术：
 
-| 前端         | 说明    | 后端           | 说明    | 人工智能      | 说明     |
-|------------|-------|--------------|-------|-----------|--------|
-| `Vue3`     | 前端框架  | `SpringBoot` | 后端框架  | `PyTorch` | 深度学习框架 |
-| `Vite2`    | 构建工具  | `TK-MyBatis` | ORM框架 | `Tornada` | 异步网络框架 |
-| `Naive UI` | UI组件库 | `MySQL`      | 数据库   |           |        |
-| `ECharts`  | 数据可视化 |              |       |           |        |
-| `Axios`    | 网络请求  |              |       |           |        |
-| `Pinia`    | 状态管理  |              |       |           |        |
+| 前端         | 说明    | 后端           | 说明    | 人工智能      | 说明     | 运维     | 说明       |
+|------------|-------|--------------|-------|-----------|--------|--------|----------|
+| `Vue3`     | 前端框架  | `SpringBoot` | 后端框架  | `PyTorch` | 深度学习框架 | NGINX  | HTTP服务器  |
+| `Vite2`    | 构建工具  | `TK-MyBatis` | ORM框架 | `Flask`   | 异步网络框架 | Tomcat | Web应用服务器 |
+| `Naive UI` | UI组件库 | `MySQL`      | 数据库   |           |        |        |          |
+| `ECharts`  | 数据可视化 |              |       |           |        |        |          |
+| `Axios`    | 网络请求  |              |       |           |        |        |          |
+| `Pinia`    | 状态管理  |              |       |           |        |        |          |
 
-## 4.2 核心技术
+## 3.2 核心技术
 
-1. 基于时间序列分析模型的人口预测模型: 使用时间序列分析模型，对人口数、户数等数据进行预测。
+1. 基于时间序列分析GRU模型的人口预测模型: 使用时间序列分析模型，对人口数、户数等数据进行预测。
 2. 基于变点检测模型的人口数量预警模型: 使用变点检测模型，对人口数、户数等数据的变化进行检测，实现对异常波动的监控。
 3. 差分数组算法: 使用差分数组算法实现数据统计的高效计算，在数据量大的情况下，能够保持 O(n) 的时间复杂度。
 
-# 5. 资料
+# 4. 资料
 
 - [焦点访谈：住在国家公园里的人们 - 央视网](https://news.cctv.com/2021/05/27/ARTICSH5SyXlKHTDZTrnhbuJ210527.shtml)
+- [National Park population estimates](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/nationalparkmidyearpopulationestimatesexperimental)
+- [National Park Population Estimates (experimental) ](https://www.data.gov.uk/dataset/ac92a0d6-89fb-4e43-92d9-820a1e9ab296/national-park-population-estimates-experimental)
+- [Resident population of national parks in England and Wales in 2011 and 2021, by park](https://www.statista.com/statistics/1405883/national-parks-residents-england-wales/)
+- [National Park, NJ Population by Year](https://www.neilsberg.com/insights/national-park-nj-population-by-year/)
+- [National Park population estimates (experimental): Reference tables](https://cy.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/nationalparkpopulationestimatesexperimentalreferencetables)

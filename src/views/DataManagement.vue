@@ -7,6 +7,7 @@ import {
 import PersonnelInformationEditingModal from "@/components/PersonnelInformationEditingModal.vue";
 import {queryResidents} from "@/assets/js/api/java-api.js";
 import {ConvertResidentInformation} from "@/assets/js/utils.js";
+import {useStatisticsStore} from "@/stores/statistics-state.js";
 
 const typeOptions = [
   {label: '姓名', value: 'name'},
@@ -26,6 +27,7 @@ const editingForm = ref({
   inParkTime: [],
   tags: [],
 })
+const statisticsStore = useStatisticsStore()
 
 const renderInParkTimeTagList = (inParkTime) => {
   return inParkTime.map(([start, end]) => {

@@ -24,6 +24,9 @@ export class ApiBuilder {
             }]
         });
         const apiAxios = (method, url, params, response_on_success, response_on_error) => {
+            if (params instanceof Function) {
+                throw new Error('又把参数省略了，你在干什么？是不是又要花几小时找错误了。 T_T');
+            }
             http({
                 method: method,
                 url: url,

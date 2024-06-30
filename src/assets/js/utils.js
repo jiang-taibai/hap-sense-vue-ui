@@ -1,5 +1,6 @@
 import {format} from "date-fns/esm";
 import {routes} from "@/router";
+import {addDays} from "date-fns";
 
 /**
  * 一个居民信息转来转去的工具
@@ -77,5 +78,37 @@ export const currentRouterName = () => {
         if (route.path === hash) {
             return route.name
         }
+    }
+}
+
+export const DateUtils = {
+    /**
+     * 将时间戳转换成时间字符串
+     * @param timestamp
+     * @returns {string}
+     */
+    timestampToString: (timestamp) => {
+        return format(new Date(timestamp), 'yyyy-MM-dd')
+    },
+
+    /**
+     * 获得今天之后的日期字符串数组
+     * @param days          天数
+     * @param containToday 是否包含今天
+     * @returns {*[]}
+     */
+    getDaysAfterToday: (days, containToday = true) => {
+        const today = new Date();
+        const dates = [];
+        for (let i = containToday ? 0 : 1; i <= days; i++) {
+            const date = addDays(today, i);
+            dates.push(format(date, 'yyyy-MM-dd'));
+        }
+        return dates;
+    },
+
+    subDays: (date, days) => {
+        date = new Date(date);
+        return format(addDays(date, -days), 'yyyy-MM-dd')
     }
 }
