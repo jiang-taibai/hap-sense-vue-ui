@@ -41,3 +41,8 @@
 - [Resident population of national parks in England and Wales in 2011 and 2021, by park](https://www.statista.com/statistics/1405883/national-parks-residents-england-wales/)
 - [National Park, NJ Population by Year](https://www.neilsberg.com/insights/national-park-nj-population-by-year/)
 - [National Park population estimates (experimental): Reference tables](https://cy.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/nationalparkpopulationestimatesexperimentalreferencetables)
+
+# 5. 开源协议
+
+本项目基于 GNU General Public License v3.0 协议发布 - 详情请参阅 [LICENSE.md](LICENSE.txt) 文件。
+
