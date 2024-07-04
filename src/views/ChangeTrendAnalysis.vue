@@ -29,7 +29,7 @@ const initLineChart = (statistics, predictedStatistics) => {
         })
     )
     xAxisData = Object.keys(statistics).sort();
-    seriesData = Object.values(statistics).sort((a, b) => a.date > b.date);
+    seriesData = xAxisData.map(date => statistics[date]);
     historicalDays = 100
   }
   const predictedSeriesData = {

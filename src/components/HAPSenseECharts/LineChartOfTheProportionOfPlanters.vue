@@ -26,9 +26,7 @@ watch(() => statisticsStore.loaded, (loaded) => {
 const initLineChart = (statistics) => {
   // statistics={'2024-06-26': {date: '2024-06-26', 'totalPopulation': 100, 'totalHousehold': 10, 'totalPlantingHousehold': 5}, ...}
   const xAxisData = Object.keys(statistics).sort();
-  const seriesData = Object.values(statistics)
-      .sort((a, b) => a.date > b.date)
-      .map(item => item.totalPlantingHousehold / item.totalHousehold);
+  const seriesData = xAxisData.map(date => statistics[date]).map(item => item.totalPlantingHousehold / item.totalHousehold);
   const myChart = echarts.init(chartEle.value, null, {renderer: 'svg', locale: 'ZH'});
   const option = {
     title: {
